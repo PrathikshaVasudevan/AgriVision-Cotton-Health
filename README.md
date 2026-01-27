@@ -1,182 +1,155 @@
-🌱 Agri-Vision: Cotton Crop Health & Maturity Analysis (Phase-4)
-📌 Project Overview
+# 🌱 Agri-Vision: Cotton Crop Maturity & Health Classifier
 
-Agri-Vision is a Computer Vision–based system designed for the agricultural sector to assist farmers and agronomists in analyzing cotton crop images.
-The system evaluates crop health, generates a health score (0–100), and provides explainable AI visualizations to justify predictions.
-The project is built as part of an internship Phase-4 submission.
+This project analyzes **cotton crop images** using **Deep Learning and Computer Vision** to determine:
 
-🎯 Objectives
+- The **growth phase** of the cotton crop  
+- The **health condition** of the crop  
+- A numeric **health score (0–100)**  
+- Whether the cotton boll is **ripped / ready for harvest**
 
-Detect health condition of cotton crops (Healthy / Damaged)
+It uses **CNN models (ResNet-18)** with **data augmentation** and **Grad-CAM explainability**, and provides predictions through a **FastAPI inference API**.
 
-Generate a quantitative health score
+---
 
-Provide visual explainability using Grad-CAM
+## ✨ Features
 
-Expose predictions through a REST API (FastAPI)
+- Image-based cotton crop analysis  
+- Growth phase classification:
+  - **Phase 1 – Vegetative / Budding**
+  - **Phase 2 – Flowering**
+  - **Phase 3 – Bursting (Ripped)**
+  - **Phase 4 – Harvest Ready**
+- Crop health detection:
+  - **Healthy**
+  - **Damaged**
+- Health score generation (0–100)
+- Data augmentation:
+  - Rotation  
+  - Brightness / lighting variation  
+  - Noise (dust/mud simulation)
+- Grad-CAM heatmap visualization
+- REST API with JSON output
 
-Design a scalable pipeline that can be extended to growth phase classification
+---
 
-🧠 System Architecture
-Image Input
-   ↓
-Preprocessing (Resize, Normalize)
-   ↓
-CNN Model (ResNet-18)
-   ↓
-Softmax Probabilities
-   ↓
-Health Status + Health Score
-   ↓
-Grad-CAM Heatmap (Explainability)
-   ↓
-FastAPI JSON Response
+## 🛠 Tech Stack
 
-🗂 Dataset
-Health Classification Dataset
+- Python  
+- PyTorch  
+- OpenCV  
+- FastAPI  
+- NumPy  
+- Matplotlib  
 
-Real cotton leaf images collected from publicly available agricultural datasets
+---
 
-Categories:
-
-Healthy
-
-Damaged (Blight, Curl Virus, Jassids, Leaf Variegation, Reddening, etc.)
-
-Total images used: ~4800
-
-Images captured under real field conditions (varying lighting, angles, noise)
-
-🔄 Data Preprocessing
-
-Image resizing to 224 × 224
-
-RGB color conversion
-
-Normalization (pixel values scaled to 0–1)
-
-Dataset loading using a custom PyTorch Dataset class
-
-🧠 Model Details
-
-Architecture: ResNet-18 (Transfer Learning)
-
-Framework: PyTorch
-
-Loss Function: Cross-Entropy Loss
-
-Optimizer: Adam
-
-Output Classes:
-
-0 → Healthy
-
-1 → Damaged
-
-📊 Health Score Computation
-
-Softmax probability of the Healthy class is converted to a percentage:
-
-Health Score = Healthy Probability × 100
-
-
-Output range: 0 – 100
-
-🔍 Explainable AI (Grad-CAM)
-
-To improve transparency and trust:
-
-Grad-CAM is used to visualize spatial regions influencing the model’s decision
-
-Heatmaps highlight areas responsible for health prediction
-
-This is critical for agricultural decision-making and model interpretability
-
-🚀 FastAPI Inference API
-Endpoint
-POST /predict
-
-Input
-
-Image file (cotton crop image)
-
-Output (JSON)
-{
-  "health_status": "Healthy",
-  "health_score": 96
-}
-
-API Features
-
-Image upload handling
-
-Real-time inference
-
-JSON response format
-
-Interactive testing via Swagger UI (/docs)
-
-🌾 Growth Phase Classification (Planned Extension)
-
-Growth phase classification is designed as a multi-class CNN extension:
-
-Phase 1: Vegetative / Budding
-
-Phase 2: Flowering
-
-Phase 3: Bursting
-
-Phase 4: Harvest Ready
-
-📌 Current status:
-Architecture and pipeline are designed; dataset curation and labeling are ongoing.
-This extension can be seamlessly integrated into the existing system.
-
-🛠 Tech Stack
-
-Python 3.11
-
-PyTorch
-
-OpenCV
-
-FastAPI
-
-Uvicorn
-
-Matplotlib
-
-NumPy
-
-📁 Project Structure
+## 📁 Project Structure
 AgriVision_Cotton_Project/
 │
-├── api/                # FastAPI application
-├── data/               # Dataset
-├── models/             # Trained models
-├── utils/              # Dataset loader
-├── outputs/            # Grad-CAM outputs
-├── train_health.py     # Training script
-├── predict_health.py   # Inference script
+├── api/
+│ └── main.py
+├── models/
+│ ├── health_model.py
+│ ├── stage_model.py
+│ ├── health_model.pth
+│ └── stage_model.pth
+├── utils/
+│ ├── dataset.py
+│ └── stage_dataset.py
+├── train_health.py
+├── train_stage.py
+├── gradcam_health.py
 └── README.md
+---
 
-✅ Results
+## ⚙️ Installation
 
-Successfully trained CNN with decreasing loss
+### 1. Create and activate virtual environment (Windows)
 
-Accurate health classification on real cotton images
+```bash
+python -m venv .venv
+.venv\Scripts\activate
+```
 
-Meaningful health score output
+### 2. Install dependencies
 
-Clear Grad-CAM visual explanations
+```bash
+pip install torch torchvision opencv-python fastapi uvicorn numpy matplotlib python-multipart
+```
 
-Fully functional REST API
+## 🧠 Train the Models
 
-📌 Conclusion
+### Train health classifier
+```bash
+python train_health.py
+```
 
-Agri-Vision demonstrates how Computer Vision and Explainable AI can be applied to agriculture for practical decision support.
-The project delivers a complete end-to-end pipeline from data ingestion to API deployment and is designed for real-world scalability.
+### Train growth stage classifier
+```bash
+python train_stage.py
+```
 
-👩‍💻 Author
+## 🔍 Generate Grad-CAM Heatmap
 
+```bash
+python gradcam_health.py
+```
+This will display:
+
+Original image
+
+Grad-CAM heatmap
+
+Overlay visualization
+
+## 🚀 Run the API
+```bash
+uvicorn api.main:app --reload
+```
+
+## 📥 API Usage
+
+### Endpoint
+```bash
+POST /predict
+```
+
+### Input
+Upload a cotton crop image.
+
+### Output (JSON)
+{
+  "stage": "Phase 3",
+  "is_ripped": true,
+  "health_status": "Healthy",
+  "health_score": 85
+}
+
+## 🎯 Output Classes
+
+### Growth Phase
+Phase 1 – Vegetative / Budding
+
+Phase 2 – Flowering
+
+Phase 3 – Bursting (Ripped)
+
+Phase 4 – Harvest Ready
+
+### Health
+Healthy
+
+Damaged
+
+## 📌 Use Case
+
+Helps farmers determine correct harvest time
+
+Assists in early detection of crop damage
+
+Provides explainable AI using heatmaps
+
+Can be integrated into agricultural monitoring systems
+
+## 👩‍💻 Author
 Prathiksha Vasudevan
