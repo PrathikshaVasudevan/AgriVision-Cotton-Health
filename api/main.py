@@ -3,15 +3,27 @@ import torch
 import cv2
 import numpy as np
 import os
+
 from models.health_model import HealthCNN
+from models.stage_model import StageCNN
 
-app = FastAPI(title="Agri-Vision Cotton Health API")
+app = FastAPI(title="Agri-Vision Cotton API")
 
-# Load model
+# Device
 device = "cuda" if torch.cuda.is_available() else "cpu"
-model = HealthCNN().to(device)
-model.load_state_dict(torch.load("models/health_model.pth", map_location=device))
-model.eval()
+
+# Load HEALTH model
+health_model = HealthCNN().to(device)
+health_model.load_state_dict(torch.load("models/health_model.pth", map_location=device))
+health_model.eval()
+
+# Load STAGE model
+stage_model = StageCNN().to(device)
+stage_model.load_state_dict(torch.load("models/stage_model.pth", map_location=device))
+stage_model.eval()
+
+# Stage names
+stage_names = ["Phase 1", "Phase 2", "Phase 3", "Phase 4"]
 
 @app.post("/predict")
 async def predict(image: UploadFile = File(...)):
@@ -23,20 +35,32 @@ async def predict(image: UploadFile = File(...)):
     img = cv2.resize(img, (224, 224))
     img = img / 255.0
 
-    img_tensor = torch.tensor(img, dtype=torch.float32).permute(2, 0, 1)
-    img_tensor = img_tensor.unsqueeze(0).to(device)
+    # To tensor
+    tensor = torch.tensor(img, dtype=torch.float32).permute(2, 0, 1)
+    tensor = tensor.unsqueeze(0).to(device)
 
-    # Predict
     with torch.no_grad():
-        outputs = model(img_tensor)
-        probs = torch.softmax(outputs, dim=1)[0]
+        # ---- STAGE PREDICTION ----
+        stage_out = stage_model(tensor)
+        stage_idx = torch.argmax(stage_out).item()
+        stage = stage_names[stage_idx]
 
-    healthy_prob = probs[0].item()
-    damaged_prob = probs[1].item()
+        # ---- HEALTH PREDICTION ----
+        health_out = health_model(tensor)
+        probs = torch.softmax(health_out, dim=1)[0]
 
-    health_score = int(healthy_prob * 100)
+        healthy_prob = probs[0].item()
+        damaged_prob = probs[1].item()
+
+        health_score = int(healthy_prob * 100)
+        health_status = "Healthy" if healthy_prob > damaged_prob else "Damaged"
+
+    # is_ripped logic
+    is_ripped = True if stage in ["Phase 3", "Phase 4"] else False
 
     return {
-        "health_status": "Healthy" if healthy_prob > damaged_prob else "Damaged",
+        "stage": stage,
+        "is_ripped": is_ripped,
+        "health_status": health_status,
         "health_score": health_score
     }
