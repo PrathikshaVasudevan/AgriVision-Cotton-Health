@@ -32,6 +32,8 @@ It uses **CNN models (ResNet-18)** with **data augmentation** and **Grad-CAM exp
 
 ---
 
+## 📂Project Structure
+
 📂 AgriVision_Cotton_Project  
  ┣ 📂 api  
  ┃ ┗ 📄 main.py  
@@ -47,6 +49,8 @@ It uses **CNN models (ResNet-18)** with **data augmentation** and **Grad-CAM exp
  ┣ 📄 train_stage.py  
  ┣ 📄 gradcam_health.py  
  ┗ 📄 README.md  
+
+---
 
 ## 🛠 Tech Stack
 
