@@ -73,6 +73,10 @@ heatmap = cv2.applyColorMap(np.uint8(255 * cam), cv2.COLORMAP_JET)
 heatmap = cv2.resize(heatmap, (original.shape[1], original.shape[0]))
 overlay = cv2.addWeighted(original, 0.6, heatmap, 0.4, 0)
 
+os.makedirs("outputs", exist_ok=True)
+cv2.imwrite("outputs/gradcam_overlay.png", cv2.cvtColor(overlay, cv2.COLOR_RGB2BGR))
+
+
 # Show results
 plt.figure(figsize=(10,4))
 plt.subplot(1,3,1)
