@@ -1,5 +1,7 @@
 # 🌱 Agri-Vision: Cotton Crop Maturity & Health Classifier
 
+This project was developed during the Winter Internship'25 at console.success 
+
 This project analyzes **cotton crop images** using **Deep Learning and Computer Vision** to determine:
 
 - The **growth phase** of the cotton crop  
